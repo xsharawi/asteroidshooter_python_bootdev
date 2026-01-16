@@ -2,6 +2,7 @@ from typing import override
 import pygame
 from circleshape import CircleShape
 from constants import *
+from logger import log_event
 from shot import Shot
 
 
@@ -36,6 +37,7 @@ class Player(CircleShape):
             self.move(-dt)
         if keys[pygame.K_b]:
             self.shoot()
+        self.bullet_limit -= dt
 
     def triangle(self):
         forward = pygame.Vector2(0, 1).rotate(self.rotation)
@@ -46,6 +48,9 @@ class Player(CircleShape):
         return [a, b, c]
 
     def shoot(self):
+        if self.bullet_limit > 0:
+            return
         t: pygame.Vector2 = self.position
         shot = Shot(t.x, t.y, self.radius)
         shot.velocity = pygame.Vector2(0, 1).rotate(self.rotation) * PLAYER_SHOOT_SPEED
+        self.bullet_limit = PLAYER_SHOOT_COOLDOWN_SECONDS
